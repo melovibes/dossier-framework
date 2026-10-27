@@ -25,6 +25,25 @@ def is_paywalled(url):
     host = re.sub(r"^https?://(www\.)?", "", url or "").split("/")[0]
     return any(host == h or host.endswith("." + h) for h in PAYWALLED)
 
+_ONE = re.compile(r"^(?P<c>c\.\s*)?(?P<q>early-|mid-|late-)?(?P<y>\d{1,4})(?P<dec>0s|s)?(?:-(?P<m>\d{2})(?:-(?P<d>\d{2}))?)?(?:\s*(?P<era>BCE|CE|BC|AD))?$")
+
+def parse_date(s):
+    """Parse a timeline/claim date. Returns (sort_key, precision) or None.
+
+    Accepts 2018-09-11 (day), 2018-09 (month), 2018 (year), 1970s / mid-2010s (decade),
+    c. 1992 (circa), 355 BCE, and ranges joined by – or -- (precision of the start;
+    an abbreviated end like 1992–93 is fine).
+    """
+    s = s.strip().replace("--", "–")
+    first = re.split(r"\s*[–—]\s*|\s+to\s+", s)[0].strip()
+    m = _ONE.match(first)
+    if not m: return None
+    y = int(m["y"]) * (-1 if m["era"] in ("BCE", "BC") else 1)
+    if m["dec"] and m["dec"] == "s" and not m["y"].endswith("0"): return None
+    prec = "circa" if m["c"] else "decade" if m["dec"] or m["q"] else "day" if m["d"] else "month" if m["m"] else "year"
+    q = {"early-": 0, "mid-": 4, "late-": 7}.get(m["q"] or "", 0)
+    return ((y + q, int(m["m"] or 0), int(m["d"] or 0)), prec)
+
 def weak(src):
     """Tertiary or low-reliability: can't carry a strong grade alone."""
     return src.get("reliability") == "C" or src.get("type") == "reference"
@@ -96,7 +115,21 @@ def main():
     nums = sorted(int(c[1:]) for c, _, _ in claims)
     gaps = sorted(set(range(1, nums[-1] + 1)) - set(nums)) if nums else []
     if gaps: warn.append("claims: ID gap(s) at " + ", ".join(f"C{n:02d}" for n in gaps) + " (renumber with tools/renumber.py)")
+    for cid, m, _ in claims:
+        if m.get("date") and not parse_date(m["date"]): err.append(f"{cid}.md: unparseable date '{m['date']}' (see GUIDE.md, Dates)")
     used = {s for _, _, c in claims for s in c}
+    tl = d / "timeline.md"
+    if tl.exists():
+        last = None
+        for row in re.findall(r"^\|(.+)\|\s*$", tl.read_text(encoding="utf-8"), re.M):
+            cells = [c.strip() for c in row.split("|")]
+            if cells[0] in ("Date",) or set(cells[0]) <= set("-: "): continue
+            if not any(cells): err.append("timeline.md: empty row"); continue
+            pd = parse_date(cells[0])
+            if not pd: err.append(f"timeline.md: unparseable date '{cells[0]}'"); continue
+            if not CITE.search(row): err.append(f"timeline.md: row '{cells[0]}' cites no source")
+            if last and pd[0] < last[0]: warn.append(f"timeline.md: '{cells[0]}' is out of chronological order")
+            last = pd
     for f in list((d / "dossier").glob("*.md")) + [d / "timeline.md"]:
         if not f.exists(): continue
         txt = f.read_text(encoding="utf-8")
@@ -114,7 +147,8 @@ def main():
     if a.write_bibliography:
         lines = [f"- **{s}** — {m.get('author') + ', ' if m.get('author') else ''}*{m.get('title')}*"
                  f"{' (' + m['date'] + ')' if m.get('date') else ''}{', ' + m['locator'] if m.get('locator') else ''}."
-                 f"{' <' + m['url'] + '>' if m.get('url') else ''} License: {m.get('license')}." for s, m in sources.items()]
+                 f"{' <' + m['url'] + '>' if m.get('url') else ''}{' Archived: <' + m['archived'] + '>.' if m.get('archived') else ''}"
+                 f" Reliability: {m.get('reliability', '?')}. License: {m.get('license')}." for s, m in sources.items()]
         replace_block(d / "bibliography.md", "bibliography", "\n".join(lines))
     chapters = {f.stem[:2]: f for f in sorted((d / "dossier").glob("[0-9][0-9]-*.md"))}
     gaps, cl = [], d / "checklist.md"

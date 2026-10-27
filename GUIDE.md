@@ -32,6 +32,9 @@ Read ETHICS.md first. If the subject is a private individual, stop.
 - Flag later tradition, relics, shrines and popular claims as such.
 - No invented citations. If a source can't be verified, leave it out.
 
+## Dates
+Timeline rows and claim `date:` fields use one format so they sort and show their precision: `2018-09-11` (day), `2018-09` (month), `2018` (year), `1970s` or `mid-2010s` (decade), `c. 1992` (circa), and `355 BCE`. Join ranges with `–` (`1993–1998`, `1992–93`). validate.py rejects dates it can't parse and warns when timeline rows are out of order.
+
 ## Source reliability
 Every source carries `reliability:`.
 | Grade | Meaning |

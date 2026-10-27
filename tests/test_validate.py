@@ -45,3 +45,17 @@ def test_report_written(dossier):
 def test_real_dossiers_pass_strict():
     for d in sorted((ROOT / "dossiers").iterdir()):
         r = validate(d); assert r.returncode == 0, f"{d.name}:\n{r.stdout}"
+
+from validate import parse_date
+
+def test_parse_date_precisions():
+    assert parse_date("2018-09-11")[1] == "day" and parse_date("2018-09")[1] == "month"
+    assert parse_date("2018")[1] == "year" and parse_date("c. 1992–93")[1] == "circa"
+    assert parse_date("mid-2010s")[1] == "decade" and parse_date("355 BCE")[0] < parse_date("415")[0]
+    assert parse_date("banana") is None
+
+def test_timeline_rules(dossier):
+    tl = dossier / "timeline.md"
+    tl.write_text(tl.read_text() + "| 1980 | Earlier | strong | [S01] |\n| someday | ? | probable | [S01] |\n| 2005 | Uncited | probable | |\n")
+    out = validate(dossier).stdout
+    assert "out of chronological order" in out and "unparseable date 'someday'" in out and "cites no source" in out
