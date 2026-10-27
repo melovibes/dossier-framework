@@ -37,3 +37,13 @@ def test_filter_hides_and_restores(server, page, term):
         before = pg.evaluate(vis); pg.fill("#q", term); during = pg.evaluate(vis); pg.fill("#q", ""); after = pg.evaluate(vis)
         b.close()
     assert 0 < during < before and after == before
+
+def test_meta_a11y_print(dossier, tmp_path):
+    t = (dossier / "subject.toml"); t.write_text(t.read_text() + '\n[site]\nbase_url = "https://example.org/d/"\n')
+    out = tmp_path / "s"; build(dossier, out)
+    h = (out / "01-early-life.html").read_text()
+    for needle in ['<a class="skip" href="#main">', 'name="description"', 'property="og:title"',
+                   '<link rel="canonical" href="https://example.org/d/01-early-life.html">', 'aria-current="page"', 'scope="col"']:
+        assert needle in h, needle
+    assert "01-early-life.html" in (out / "sitemap.xml").read_text()
+    assert "Early life" in (out / "print.html").read_text()

@@ -27,3 +27,7 @@ list = [
 [collections]
 # Folders under collections/ for mirrored public-domain sources.
 list = ["primary", "secondary", "archaeology", "afterlives"]
+
+[site]
+# Public URL of the built site (canonical links, Open Graph, sitemap.xml). Leave blank if unpublished.
+base_url = ""
