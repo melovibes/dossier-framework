@@ -6,6 +6,6 @@ He apologised on Twitter that day: "Roseanne and Louis have both been very good 
 
 NBC then cancelled his appearance on that night's Tonight Show: "Out of sensitivity to our audience and in light of Norm Macdonald's comments in the press today, 'The Tonight Show' has decided to cancel his appearance on Tuesday's telecast" [S30] [S31] (C35). Netflix went ahead with the show [S30].
 
-The next day, on Howard Stern's show, he said "you'd have to have Down syndrome" not to feel sorry for the victims, and apologised again [S32] (C36; one reputable source fetched).
+The next day, on Howard Stern's show, he said "you'd have to have Down syndrome" not to feel sorry for the victims, and apologised again [S32] [S58] (C36). On The View on September 13 he called that remark "a terrible, terrible thing for me to say" and "something unforgivable" [S58].
 
 The dossier records what he said and how outlets and NBC responded. It takes no position on the comments.

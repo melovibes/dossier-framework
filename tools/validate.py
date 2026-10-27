@@ -2,7 +2,9 @@
 """Validate a dossier: every claim cites existing sources and has a grade,
 every [Sxx] in chapters/timeline resolves, sources have url or mirror.
 
-  python tools/validate.py <dossier_dir> [--write-summary] [--write-bibliography] [--strict]
+  python tools/validate.py <dossier_dir> [--write-summary] [--write-bibliography] [--report] [--strict]
+--report writes coverage.md: per-chapter claims, grade mix, single-source claims,
+source reliability, and checklist gaps.
 Exit 1 on errors (warnings too with --strict).
 """
 import argparse, re, sys, tomllib
@@ -12,6 +14,39 @@ GRADES = {"strong": "Strong historical conclusion", "widely-accepted": "Widely a
           "probable": "Probable", "disputed": "Disputed", "unproved": "Unproved hypothesis",
           "unsupported": "Unsupported", "false": "False", "unassessed": "Not yet assessed"}
 CITE = re.compile(r"\[(S\d+)\]")
+RELIABILITY = {"A": "major outlet, scholarly or primary record", "B": "reputable but limited or self-reported", "C": "tertiary, fan-maintained or anonymous"}
+TYPES = {"primary", "secondary", "archaeological", "reference", "media"}
+CONFIDENT = {"strong", "widely-accepted"}
+# Hosts that paywall or block fetching; sources from them need an `archived:` copy.
+PAYWALLED = ("nytimes.com", "wsj.com", "washingtonpost.com", "theglobeandmail.com", "latimes.com", "newyorker.com",
+             "ft.com", "economist.com", "theatlantic.com", "bloomberg.com", "thetimes.co.uk", "telegraph.co.uk", "thehendonmob.com")
+
+def is_paywalled(url):
+    host = re.sub(r"^https?://(www\.)?", "", url or "").split("/")[0]
+    return any(host == h or host.endswith("." + h) for h in PAYWALLED)
+
+_ONE = re.compile(r"^(?P<c>c\.\s*)?(?P<q>early-|mid-|late-)?(?P<y>\d{1,4})(?P<dec>0s|s)?(?:-(?P<m>\d{2})(?:-(?P<d>\d{2}))?)?(?:\s*(?P<era>BCE|CE|BC|AD))?$")
+
+def parse_date(s):
+    """Parse a timeline/claim date. Returns (sort_key, precision) or None.
+
+    Accepts 2018-09-11 (day), 2018-09 (month), 2018 (year), 1970s / mid-2010s (decade),
+    c. 1992 (circa), 355 BCE, and ranges joined by – or -- (precision of the start;
+    an abbreviated end like 1992–93 is fine).
+    """
+    s = s.strip().replace("--", "–")
+    first = re.split(r"\s*[–—]\s*|\s+to\s+", s)[0].strip()
+    m = _ONE.match(first)
+    if not m: return None
+    y = int(m["y"]) * (-1 if m["era"] in ("BCE", "BC") else 1)
+    if m["dec"] and m["dec"] == "s" and not m["y"].endswith("0"): return None
+    prec = "circa" if m["c"] else "decade" if m["dec"] or m["q"] else "day" if m["d"] else "month" if m["m"] else "year"
+    q = {"early-": 0, "mid-": 4, "late-": 7}.get(m["q"] or "", 0)
+    return ((y + q, int(m["m"] or 0), int(m["d"] or 0)), prec)
+
+def weak(src):
+    """Tertiary or low-reliability: can't carry a strong grade alone."""
+    return src.get("reliability") == "C" or src.get("type") == "reference"
 
 def front(path):
     t = path.read_text(encoding="utf-8")
@@ -36,6 +71,7 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("dossier"); p.add_argument("--write-summary", action="store_true")
     p.add_argument("--write-bibliography", action="store_true"); p.add_argument("--strict", action="store_true")
+    p.add_argument("--report", action="store_true", help="write coverage.md")
     a = p.parse_args(); d = Path(a.dossier)
     err, warn = [], []
     try:
@@ -54,6 +90,11 @@ def main():
             err.append(f"{f.name}: mirrored file collections/{m['mirrored']} not found")
         if m.get("mirrored") and m.get("license") == "linked-only":
             err.append(f"{f.name}: linked-only sources must not be mirrored")
+        if m.get("reliability") not in RELIABILITY:
+            err.append(f"{f.name}: reliability must be one of A/B/C (got '{m.get('reliability', '')}')")
+        if m.get("type") not in TYPES: err.append(f"{f.name}: type must be one of {sorted(TYPES)}")
+        if is_paywalled(m.get("url")) and not m.get("archived"):
+            warn.append(f"{f.name}: paywalled host with no archived: copy (run tools/add_source.py --archive-only {f})")
         sources[f.stem] = m
     claims = []
     for f in sorted((d / "claims").glob("C*.md")):
@@ -65,8 +106,30 @@ def main():
         if not cited: err.append(f"{f.name}: cites no source")
         for s in cited:
             if s not in sources: err.append(f"{f.name}: cites unknown source {s}")
+        known = [sources[s] for s in cited if s in sources]
+        if g in CONFIDENT and len(set(cited)) < 2:
+            warn.append(f"{f.name}: graded {g} on a single source; add an independent source or lower the grade")
+        if g == "strong" and known and all(weak(s) for s in known):
+            err.append(f"{f.name}: graded strong but cites only tertiary/C sources")
         claims.append((f.stem, m, cited))
+    nums = sorted(int(c[1:]) for c, _, _ in claims)
+    gaps = sorted(set(range(1, nums[-1] + 1)) - set(nums)) if nums else []
+    if gaps: warn.append("claims: ID gap(s) at " + ", ".join(f"C{n:02d}" for n in gaps) + " (renumber with tools/renumber.py)")
+    for cid, m, _ in claims:
+        if m.get("date") and not parse_date(m["date"]): err.append(f"{cid}.md: unparseable date '{m['date']}' (see GUIDE.md, Dates)")
     used = {s for _, _, c in claims for s in c}
+    tl = d / "timeline.md"
+    if tl.exists():
+        last = None
+        for row in re.findall(r"^\|(.+)\|\s*$", tl.read_text(encoding="utf-8"), re.M):
+            cells = [c.strip() for c in row.split("|")]
+            if cells[0] in ("Date",) or set(cells[0]) <= set("-: "): continue
+            if not any(cells): err.append("timeline.md: empty row"); continue
+            pd = parse_date(cells[0])
+            if not pd: err.append(f"timeline.md: unparseable date '{cells[0]}'"); continue
+            if not CITE.search(row): err.append(f"timeline.md: row '{cells[0]}' cites no source")
+            if last and pd[0] < last[0]: warn.append(f"timeline.md: '{cells[0]}' is out of chronological order")
+            last = pd
     for f in list((d / "dossier").glob("*.md")) + [d / "timeline.md"]:
         if not f.exists(): continue
         txt = f.read_text(encoding="utf-8")
@@ -75,6 +138,35 @@ def main():
         for s in CITE.findall(txt):
             used.add(s)
             if s not in sources: err.append(f"{f.relative_to(d)}: cites unknown source {s}")
+    cx = d / "contradictions.md"
+    cids = {cid for cid, _, _ in claims}
+    listed = set()
+    if cx.exists():
+        seen = []
+        for row in re.findall(r"^\|(.+)\|\s*$", cx.read_text(encoding="utf-8"), re.M):
+            cells = [c.strip() for c in row.split("|")]
+            if cells[0] == "ID" or set(cells[0]) <= set("-: "): continue
+            if len(cells) != 5: err.append(f"contradictions.md: row '{cells[0]}' needs 5 columns"); continue
+            xid, q, pos, res, cl = cells
+            if not re.fullmatch(r"X\d{2,}", xid): err.append(f"contradictions.md: bad id '{xid}' (use X01, X02, ...)")
+            if xid in seen: err.append(f"contradictions.md: duplicate id {xid}")
+            seen.append(xid)
+            cs = set(CITE.findall(pos))
+            if len(cs) < 2: err.append(f"contradictions.md: {xid} positions cite fewer than two sources")
+            for s in cs:
+                used.add(s)
+                if s not in sources: err.append(f"contradictions.md: {xid} cites unknown source {s}")
+            for s in CITE.findall(res):
+                if s not in sources: err.append(f"contradictions.md: {xid} cites unknown source {s}")
+            if not re.match(r"\*\*(Resolved|Open)\b", res): err.append(f"contradictions.md: {xid} resolution must start with **Resolved** or **Open**")
+            refs = re.findall(r"C\d+", cl)
+            if not refs: err.append(f"contradictions.md: {xid} lists no claims")
+            for c in refs:
+                listed.add(c)
+                if c not in cids: err.append(f"contradictions.md: {xid} refers to unknown claim {c}")
+    for cid, m, _ in claims:
+        if m.get("grade") == "disputed" and cid not in listed:
+            warn.append(f"{cid}.md: graded disputed but not in contradictions.md")
     for s in sources:
         if s not in used: warn.append(f"sources/{s}.md: never cited")
     if a.write_summary and (d / "dossier/00-executive-findings.md").exists():
@@ -84,12 +176,49 @@ def main():
     if a.write_bibliography:
         lines = [f"- **{s}** — {m.get('author') + ', ' if m.get('author') else ''}*{m.get('title')}*"
                  f"{' (' + m['date'] + ')' if m.get('date') else ''}{', ' + m['locator'] if m.get('locator') else ''}."
-                 f"{' <' + m['url'] + '>' if m.get('url') else ''} License: {m.get('license')}." for s, m in sources.items()]
+                 f"{' <' + m['url'] + '>' if m.get('url') else ''}{' Archived: <' + m['archived'] + '>.' if m.get('archived') else ''}"
+                 f" Reliability: {m.get('reliability', '?')}. License: {m.get('license')}." for s, m in sources.items()]
         replace_block(d / "bibliography.md", "bibliography", "\n".join(lines))
+    chapters = {f.stem[:2]: f for f in sorted((d / "dossier").glob("[0-9][0-9]-*.md"))}
+    gaps, cl = [], d / "checklist.md"
+    if cl.exists():
+        for row in re.findall(r"^\|(?!\s*Item\b)(?!-)([^|]+)\|([^|]*)\|([^|]*)\|$", cl.read_text(encoding="utf-8"), re.M):
+            item, cov, note = (x.strip() for x in row)
+            if set(item) <= set("-: "): continue
+            if not cov: gaps.append(item); continue
+            if cov.lower() == "n/a":
+                if not note: warn.append(f"checklist.md: '{item}' is n/a without a note")
+                continue
+            for c in re.split(r"[,\s]+", cov):
+                if c and c not in chapters: err.append(f"checklist.md: '{item}' points to missing chapter {c}")
+        for g in gaps: warn.append(f"checklist.md: not covered: {g}")
+    if a.report:
+        write_report(d, sources, claims, chapters, gaps)
     for w in warn: print("WARN ", w)
     for e in err: print("ERROR", e)
     print(f"{len(sources)} sources, {len(claims)} claims, {len(err)} errors, {len(warn)} warnings")
     sys.exit(1 if err or (a.strict and warn) else 0)
+
+def write_report(d, sources, claims, chapters, gaps):
+    def mix(cs):
+        n = {}
+        for _, m, _ in cs: n[m.get("grade")] = n.get(m.get("grade"), 0) + 1
+        return ", ".join(f"{g} {n[g]}" for g in GRADES if g in n) or "—"
+    rel = lambda ss: sum(sources.get(s, {}).get("reliability") == "A" for s in ss)
+    rows = ["| Chapter | Claims | Grades | Single-source | Distinct sources | A-grade share |", "|---|---|---|---|---|---|"]
+    for num, f in chapters.items():
+        cs = [c for c in claims if (c[1].get("chapter") or "").startswith(num)]
+        txt = f.read_text(encoding="utf-8"); cited = set(CITE.findall(txt)) | {s for c in cs for s in c[2]}
+        share = f"{100 * rel(cited) // len(cited)}%" if cited else "—"
+        rows.append(f"| {f.stem} | {len(cs)} | {mix(cs)} | {sum(len(set(c[2])) == 1 for c in cs)} | {len(cited)} | {share} |")
+    single = [f"- {cid} ({m.get('grade')}): {m.get('claim')} — {', '.join(c)}" for cid, m, c in claims if len(set(c)) == 1]
+    by_rel = {}
+    for s, m in sources.items(): by_rel.setdefault(m.get("reliability") or "?", []).append(s)
+    out = [f"# Coverage report", "", "Generated by `tools/validate.py --report`. Do not edit by hand.", "",
+           f"**{len(sources)} sources** (" + ", ".join(f"{k}: {len(v)}" for k, v in sorted(by_rel.items())) + f") · **{len(claims)} claims** ({mix(claims)})", "",
+           "## By chapter", "", *rows, "", "## Single-source claims", "", *(single or ["None."]), "",
+           "## Checklist gaps", "", *([f"- {g}" for g in gaps] or ["None." if (d / "checklist.md").exists() else "No checklist.md."]), ""]
+    (d / "coverage.md").write_text("\n".join(out), encoding="utf-8")
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Refuse to push commits whose author or committer email is not a GitHub noreply address.
+set -euo pipefail
+zero=0000000000000000000000000000000000000000
+while read -r lref lsha rref rsha; do
+  [ "$lsha" = "$zero" ] && continue
+  range=$([ "$rsha" = "$zero" ] && echo "$lsha --not --remotes" || echo "$rsha..$lsha")
+  bad=$(git log --format='%h %ae %ce' $range | grep -vE '^[0-9a-f]+ [^ ]+@users\.noreply\.github\.com [^ ]+@users\.noreply\.github\.com$' || true)
+  if [ -n "$bad" ]; then echo "pre-push: non-noreply emails in commits to $rref:" >&2; echo "$bad" >&2; exit 1; fi
+done

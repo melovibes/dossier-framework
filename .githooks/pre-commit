@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Install once per clone: git config core.hooksPath .githooks
+set -euo pipefail
+ok='@users\.noreply\.github\.com>'
+for v in GIT_AUTHOR_IDENT GIT_COMMITTER_IDENT; do
+  ident=$(git var "$v")
+  if ! grep -qE "$ok" <<<"$ident"; then
+    echo "pre-commit: $v is '$ident'." >&2
+    echo "Use a GitHub noreply address, e.g. git -c user.email=<id>+<user>@users.noreply.github.com commit" >&2
+    exit 1
+  fi
+done
+py=$(command -v python3 || command -v python)
+for d in dossiers/*/; do "$py" tools/validate.py "$d" --strict >/dev/null || { "$py" tools/validate.py "$d" --strict; exit 1; }; done
+if git diff --cached --name-only | grep -qE '^(dossiers|tools|templates)/'; then
+  "$py" tools/build_site.py --all >/dev/null
+  if ! git diff --quiet -- site || [ -n "$(git ls-files --others --exclude-standard site)" ]; then echo "pre-commit: site/ is stale; rebuilt it. Review and 'git add site' then commit again." >&2; exit 1; fi
+fi
+"$py" tools/check_links.py site >/dev/null || { "$py" tools/check_links.py site; exit 1; }

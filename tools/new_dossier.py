@@ -37,12 +37,17 @@ def scaffold(a):
     cfg = fill((TPL / "subject.toml").read_text(encoding="utf-8"), ctx)
     cfg = cfg.replace("aliases = []", "aliases = [%s]" % ", ".join('"%s"' % x for x in a.alias))
     cfg = cfg.replace('period = ""', f'period = "{a.period}"')
+    kind = a.kind
+    cfg = re.sub(r'^kind = "[^"]*"', f'kind = "{kind}"', cfg, count=1, flags=re.M)
+    checklist = TPL / "checklists" / f"{kind}.md"
     if a.question:
         cfg = re.sub(r"(\[questions\][^\[]*?list = )\[.*?\]", lambda m: m.group(1) + "[\n" + "".join(f'  "{q}",\n' for q in a.question) + "]", cfg, flags=re.S)
     if a.collection:
         cfg = re.sub(r"(\[collections\][^\[]*?list = )\[.*?\]", lambda m: m.group(1) + "[" + ", ".join(f'"{c}"' for c in a.collection) + "]", cfg, flags=re.S)
     write(dest / "subject.toml", cfg)
-    for f in ["README.md", "timeline.md", "bibliography.md"]:
+    if checklist.exists():
+        write(dest / "checklist.md", checklist.read_text(encoding="utf-8"))
+    for f in ["README.md", "timeline.md", "bibliography.md", "contradictions.md"]:
         write(dest / f, fill((TPL / f).read_text(encoding="utf-8"), ctx))
     for f in ["00-executive-findings.md", "00-scope-and-method.md", "99-source-notes.md"]:
         write(dest / "dossier" / f, fill((TPL / "dossier" / f).read_text(encoding="utf-8"), ctx))
@@ -57,8 +62,6 @@ def scaffold(a):
     for d in ["sources", "claims"]:
         (dest / d).mkdir(parents=True, exist_ok=True)
         shutil.copy(TPL / d / f"_{d[:-1]}.md", dest / d / f"_{d[:-1]}.template.md")
-    (dest / "tools").mkdir(exist_ok=True)
-    shutil.copy(ROOT / "tools" / "validate.py", dest / "tools" / "validate.py")
     print(f"Created {dest}\nNext: edit {dest/'subject.toml'}, then follow GUIDE.md")
 
 def add(a, kind):
@@ -83,6 +86,8 @@ def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--subject", required=True)
     p.add_argument("--slug"); p.add_argument("--period", default="")
+    p.add_argument("--kind", default="person", choices=["person", "event", "place", "object", "movement", "topic"],
+                   help="subject type; copies the matching coverage checklist to checklist.md")
     p.add_argument("--alias", action="append", default=[])
     p.add_argument("--question", action="append", default=[], help="research question (repeatable); one chapter each")
     p.add_argument("--collection", action="append", default=[], help="collection folder (repeatable)")

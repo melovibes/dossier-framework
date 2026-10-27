@@ -1,0 +1,2 @@
+pytest
+playwright  # headless filter tests; then: python -m playwright install chromium
