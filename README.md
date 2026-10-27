@@ -20,7 +20,7 @@ Then follow **[GUIDE.md](GUIDE.md)** (includes an agent prompt). Read **[ETHICS.
 | `tools/new_dossier.py` | Scaffold a dossier; add numbered sources/claims |
 | `tools/validate.py` | Every claim graded and cited; every `[Sxx]` resolves; mirrors are licensed; regenerates summary table and bibliography |
 | `dossiers/` | Generated dossiers |
-| `.github/workflows/validate.yml` | Runs validation on every dossier in CI |
+| `ci/validate.yml` | GitHub Actions workflow; move to `.github/workflows/` to enable CI |
 
 ## Grades
 strong · widely-accepted · probable · disputed · unproved · unsupported · false · unassessed (see GUIDE.md).
