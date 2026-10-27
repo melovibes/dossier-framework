@@ -9,7 +9,7 @@ region = "Canada; United States"
 research_cutoff = "2026-10-27"
 
 [scope]
-in_scope = ["public career: stand-up, SNL, film, TV, podcast, books, specials", "birth-year dispute", "publicly reported illness and death", "published personal history: parents, marriage, son, residences by city"]                # what the dossier covers
+in_scope = ["public career: stand-up, SNL, film, TV, podcast, books, specials", "birth-year dispute", "publicly reported illness and death", "published personal history: parents, marriage, son, residences by city", "published controversies, gambling and faith as he described them"]                # what the dossier covers
 out_of_scope = ["street addresses or contact details", "private details of living relatives beyond names and published basics", "unverified fan claims and rumors"]            # what it deliberately does not
 # Confirm before starting: the subject is historical or a public figure/topic,
 # and research uses published sources only (see ETHICS.md).
@@ -28,6 +28,9 @@ list = [
   "Illness and death",
   "Legacy and posthumous recognition",
   "Personal life and family",
+  "Gambling and poker",
+  "The 2018 #MeToo comments",
+  "Faith",
 ]
 
 [collections]
