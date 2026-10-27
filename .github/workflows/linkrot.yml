@@ -20,4 +20,5 @@ jobs:
       - name: Open an issue when sources are dead
         if: steps.check.outcome == 'failure'
         env: {GH_TOKEN: "${{ github.token }}"}
-        run: gh issue create --title "Link rot: dead source urls ($(date -u +%F))" --body-file linkrot.md
+        run: |
+          gh issue create --title "Link rot: dead source urls ($(date -u +%F))" --body-file linkrot.md
