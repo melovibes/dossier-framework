@@ -22,7 +22,7 @@
 | 1999–2001 | The Norm Show on ABC | strong | [S03] |
 | 1999-10-23 | Returns to host SNL | strong | [S50] [S43] |
 | 2000 | Stars in Screwed | strong | [S48] |
-| 2004-06-10 | Celebrity Poker Showdown: first-hand knockout, second place | strong | [S44] [S45] |
+| 2004-06-10 | Celebrity Poker Showdown: first-hand knockout, second place | strong | [S44] [S59] [S45] |
 | 2008 | Clean-joke set at the Comedy Central Roast of Bob Saget | strong | [S40] [S41] |
 | 2009 | The moth joke on The Tonight Show with Conan O'Brien | strong | [S23] [S51] |
 | 2011 | Me Doing Standup (Comedy Central) | widely-accepted | [S37] |
