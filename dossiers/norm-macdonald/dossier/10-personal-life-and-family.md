@@ -16,7 +16,7 @@ His only child, Dylan, was born in the early 1990s: Rolling Stone gave his age a
 
 ## Dating and relationships
 
-No reputable source checked reports a romantic partner after the 1999 separation (C30, unproved). Profiles from 2016 and 2018 describe a private man who rarely went out [S25] [S27]. Online fan speculation about specific people is not evidence and is deliberately not repeated here.
+The Washington Post reported in 2022 that in the 1990s he "briefly dated supermodel Elle Macpherson"; it gives no dates and is the only reputable source for it (C52, probable). No reputable source checked reports a partner after the 1999 separation (C30, unproved). Profiles from 2016 and 2018 describe a private man who rarely went out [S25] [S27]. Online fan speculation about specific people is not evidence and is deliberately not repeated here.
 
 ## Where he lived
 
@@ -28,6 +28,7 @@ No reputable source checked reports a romantic partner after the 1999 separation
 | 1993–1998 | New York area, as an SNL cast member (inferred from the job) | probable (C28) | [S03] [S26] |
 | c. 1999 – 2010s | Los Angeles (West Hollywood), after SNL and for The Norm Show, to be near his son | widely-accepted (C26) | [S26] [S27] |
 | mid-2010s – 2021 | Los Angeles, a planned community on the Westside near LAX, living with his adult son and next to a home he bought for his mother | widely-accepted (C26) | [S25] [S27] |
-| 2021-09-14 | Died in the Los Angeles area (Los Angeles per CBC; Pasadena per the Toronto Star) | disputed (C29) | [S01] [S29] |
+| 2013 (about four months) | Arizona, temporarily, for his first stem-cell transplant | widely-accepted (C51) | [S52] |
+| 2021-07 – 2021-09-14 | City of Hope hospital, Duarte (Los Angeles County), where he died | widely-accepted (C29) | [S52] [S01] [S29] |
 
 The farm, Ottawa and Los Angeles periods rest on several outlets; the New York years are inferred from the SNL job rather than from a reported residence.
