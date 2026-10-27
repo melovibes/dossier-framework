@@ -44,7 +44,7 @@ The weak points are mostly ones he made himself. He spent years giving a false b
 | While on SNL he won about $75,000 at craps at the Trump Taj Mahal in Atlantic City (his own account). (C33) | Unproved hypothesis | [S33] |
 | On Bravo's Celebrity Poker Showdown (2004) he knocked out Adam Rodriguez on the first hand, the only time that happened on the show, and finished second in his game to Michael Ian Black. (C34) | Strong historical conclusion | [S44] [S45] |
 | In a Hollywood Reporter interview published September 11, 2018, he said he was 'happy the (C35) | Strong historical conclusion | [S30] [S31] [S32] |
-| The next day, on Howard Stern's show, he said 'you'd have to have Down syndrome' not to feel sorry for victims, and apologised again. (C36) | Widely accepted | [S32] |
+| The next day, on Howard Stern's show, he said 'you'd have to have Down syndrome' not to feel sorry for victims, and apologised again. (C36) | Widely accepted | [S32] [S58] |
 | He publicly described himself as a Christian. (C37) | Widely accepted | [S34] [S35] [S36] |
 | His stand-up specials were Me Doing Standup (Comedy Central, 2011) and Hitler's Dog, Gossip & Trickery (Netflix, 2017), followed by the posthumous Nothing Special (2022). (C38) | Widely accepted | [S37] [S21] |
 | Norm Macdonald Has a Show premiered on Netflix in September 2018 and drew mixed-to-negative reviews. (C39) | Strong historical conclusion | [S38] [S39] [S30] |

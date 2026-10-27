@@ -58,4 +58,5 @@
 - **S55** — Television Academy, *Television Academy, Norm MacDonald: Emmy Awards and Nominations* (n.d.), awards record. <https://www.televisionacademy.com/bios/norm-macdonald> License: linked-only.
 - **S56** — People, *People, All About Late 'SNL' Star Norm Macdonald's Ex-Wife and Son* (2025), section on the 2022 HCA TV Awards. <https://people.com/all-about-norm-macdonald-ex-wife-son-12166573> License: linked-only.
 - **S57** — snltranscripts.jt.org, *SNL Transcripts Tonight, Weekend Update with Norm Macdonald (04/12/97)* (1997-04-12), transcript ('Note to self' bits). <https://snltranscripts.jt.org/96/96qupdate.phtml> License: linked-only.
+- **S58** — Greg Evans, *Deadline, Norm Macdonald Calls Down Syndrome Comment "Unforgivable", Apologizes On 'The View'* (2018-09-13), full article (Stern quote; The View apology). <https://deadline.com/2018/09/norm-macdonald-the-view-down-syndrome-comment-unforgivable-1202463973/> License: linked-only.
 <!-- bibliography:end -->

@@ -7,5 +7,5 @@ Two or three paragraphs: who/what the subject was, the strongest reconstruction,
 <!-- claims:start -->
 | Claim | Best assessment | Sources |
 |---|---|---|
-| Hypatia was killed by a Christian mob in 415 (C01) | Strong historical conclusion | [S01] |
+| Hypatia was killed by a Christian mob in 415 (C01) | Strong historical conclusion | [S01] [S02] |
 <!-- claims:end -->
