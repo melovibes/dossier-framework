@@ -69,7 +69,10 @@ def main():
     used = {s for _, _, c in claims for s in c}
     for f in list((d / "dossier").glob("*.md")) + [d / "timeline.md"]:
         if not f.exists(): continue
-        for s in CITE.findall(f.read_text(encoding="utf-8")):
+        txt = f.read_text(encoding="utf-8")
+        for c in re.findall(r"\((C\d+)\)", txt):
+            if c not in {cid for cid, _, _ in claims}: err.append(f"{f.relative_to(d)}: refers to unknown claim {c}")
+        for s in CITE.findall(txt):
             used.add(s)
             if s not in sources: err.append(f"{f.relative_to(d)}: cites unknown source {s}")
     for s in sources:

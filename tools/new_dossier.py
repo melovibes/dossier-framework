@@ -37,6 +37,10 @@ def scaffold(a):
     cfg = fill((TPL / "subject.toml").read_text(encoding="utf-8"), ctx)
     cfg = cfg.replace("aliases = []", "aliases = [%s]" % ", ".join('"%s"' % x for x in a.alias))
     cfg = cfg.replace('period = ""', f'period = "{a.period}"')
+    if a.question:
+        cfg = re.sub(r"(\[questions\][^\[]*?list = )\[.*?\]", lambda m: m.group(1) + "[\n" + "".join(f'  "{q}",\n' for q in a.question) + "]", cfg, flags=re.S)
+    if a.collection:
+        cfg = re.sub(r"(\[collections\][^\[]*?list = )\[.*?\]", lambda m: m.group(1) + "[" + ", ".join(f'"{c}"' for c in a.collection) + "]", cfg, flags=re.S)
     write(dest / "subject.toml", cfg)
     for f in ["README.md", "timeline.md", "bibliography.md"]:
         write(dest / f, fill((TPL / f).read_text(encoding="utf-8"), ctx))
@@ -80,6 +84,8 @@ def main():
     p.add_argument("--subject", required=True)
     p.add_argument("--slug"); p.add_argument("--period", default="")
     p.add_argument("--alias", action="append", default=[])
+    p.add_argument("--question", action="append", default=[], help="research question (repeatable); one chapter each")
+    p.add_argument("--collection", action="append", default=[], help="collection folder (repeatable)")
     p.add_argument("--out", default="dossiers"); p.add_argument("--force", action="store_true")
     scaffold(p.parse_args(argv))
 
