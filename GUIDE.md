@@ -10,6 +10,7 @@ Read ETHICS.md first. If the subject is a private individual, stop.
 5. **Build the timeline** — every row cites sources.
 6. **Write chapters** in `dossier/`, one per research question. Every factual paragraph ends with `[Sxx]` citations. Leave gaps visible; say what the evidence does not establish.
 7. **Validate** with `python tools/validate.py <dossier> --write-summary --write-bibliography` until it passes.
+8. **Build the reading site** with `python tools/build_site.py <dossier>`, which writes `site/<slug>/`. Open `site/<slug>/index.html` in a browser; no server is needed. It has a sidebar of contents, grade badges, clickable `[Sxx]`/`(Cxx)` links, claim and source cards, a timeline, a filter box (press `/`), dark mode and a mobile layout.
 
 ## Grading scale
 | Grade | Meaning |
