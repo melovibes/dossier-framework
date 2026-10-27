@@ -23,3 +23,8 @@ jobs:
           git diff --stat --exit-code -- site || { echo "site/ is stale: run tools/build_site.py and commit"; exit 1; }
       - name: Internal links
         run: python tools/check_links.py site
+      - name: Tests (incl. headless filter)
+        run: |
+          pip install -r requirements-dev.txt
+          python -m playwright install --with-deps chromium
+          python -m pytest -q
