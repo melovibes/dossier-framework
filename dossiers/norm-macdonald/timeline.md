@@ -35,7 +35,7 @@
 | 2017 | Hitler's Dog, Gossip & Trickery (Netflix) | widely-accepted | [S37] |
 | 2018 | Norm Macdonald Has a Show (Netflix) | strong | [S06] |
 | 2018-09-11 | #MeToo remarks in THR; apology; Tonight Show appearance cancelled | strong | [S30] [S31] |
-| 2018-09-12 | Howard Stern remark and second apology | widely-accepted | [S32] |
+| 2018-09-12 | Howard Stern remark; apologises again on The View on Sept. 13 | widely-accepted | [S32] [S58] |
 | 2018-09-14 | Norm Macdonald Has a Show premieres on Netflix | strong | [S30] [S39] |
 | 2020-06-28 | Nothing Special filmed at home, one take, the day before a stem-cell transplant | widely-accepted | [S52] [S18] |
 | 2021-09-14 | Dies at City of Hope, Duarte, of complications of cancer, at 61 | strong | [S01] [S04] [S52] |

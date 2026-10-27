@@ -58,6 +58,6 @@ The weak points are mostly ones he made himself. He spent years giving a false b
 | He won no Primetime Emmy; his only Emmy nominations were three posthumous ones in 2022 for Nothing Special. (C47) | Widely accepted | [S55] [S20] [S21] |
 | Nothing Special won a 2022 Hollywood Critics Association TV Award, accepted by his son. (C48) | Probable | [S56] |
 | He attended Gloucester High School in Ottawa, skipped his final two years, studied at Carleton University without finishing, briefly attended Algonquin College, and worked odd jobs including insurance underwriting before stand-up. (C49) | Widely accepted | [S02] [S03] |
-| He was diagnosed with cancer (multiple myeloma) in 2013, had a first stem-cell transplant that year in Arizona, and in 2020 the disease progressed to myelodysplastic syndrome. (C51) | Widely accepted | [S52] [S02] |
-| In the 1990s he briefly dated the model Elle Macpherson. (C52) | Probable | [S52] |
+| He was diagnosed with cancer (multiple myeloma) in 2013, had a first stem-cell transplant that year in Arizona, and in 2020 the disease progressed to myelodysplastic syndrome. (C50) | Widely accepted | [S52] [S02] |
+| In the 1990s he briefly dated the model Elle Macpherson. (C51) | Probable | [S52] |
 <!-- claims:end -->

@@ -12,6 +12,20 @@ GRADES = {"strong": "Strong historical conclusion", "widely-accepted": "Widely a
           "probable": "Probable", "disputed": "Disputed", "unproved": "Unproved hypothesis",
           "unsupported": "Unsupported", "false": "False", "unassessed": "Not yet assessed"}
 CITE = re.compile(r"\[(S\d+)\]")
+RELIABILITY = {"A": "major outlet, scholarly or primary record", "B": "reputable but limited or self-reported", "C": "tertiary, fan-maintained or anonymous"}
+TYPES = {"primary", "secondary", "archaeological", "reference", "media"}
+CONFIDENT = {"strong", "widely-accepted"}
+# Hosts that paywall or block fetching; sources from them need an `archived:` copy.
+PAYWALLED = ("nytimes.com", "wsj.com", "washingtonpost.com", "theglobeandmail.com", "latimes.com", "newyorker.com",
+             "ft.com", "economist.com", "theatlantic.com", "bloomberg.com", "thetimes.co.uk", "telegraph.co.uk", "thehendonmob.com")
+
+def is_paywalled(url):
+    host = re.sub(r"^https?://(www\.)?", "", url or "").split("/")[0]
+    return any(host == h or host.endswith("." + h) for h in PAYWALLED)
+
+def weak(src):
+    """Tertiary or low-reliability: can't carry a strong grade alone."""
+    return src.get("reliability") == "C" or src.get("type") == "reference"
 
 def front(path):
     t = path.read_text(encoding="utf-8")
@@ -54,6 +68,11 @@ def main():
             err.append(f"{f.name}: mirrored file collections/{m['mirrored']} not found")
         if m.get("mirrored") and m.get("license") == "linked-only":
             err.append(f"{f.name}: linked-only sources must not be mirrored")
+        if m.get("reliability") not in RELIABILITY:
+            err.append(f"{f.name}: reliability must be one of A/B/C (got '{m.get('reliability', '')}')")
+        if m.get("type") not in TYPES: err.append(f"{f.name}: type must be one of {sorted(TYPES)}")
+        if is_paywalled(m.get("url")) and not m.get("archived"):
+            warn.append(f"{f.name}: paywalled host with no archived: copy (run tools/add_source.py --archive-only {f})")
         sources[f.stem] = m
     claims = []
     for f in sorted((d / "claims").glob("C*.md")):
@@ -65,7 +84,15 @@ def main():
         if not cited: err.append(f"{f.name}: cites no source")
         for s in cited:
             if s not in sources: err.append(f"{f.name}: cites unknown source {s}")
+        known = [sources[s] for s in cited if s in sources]
+        if g in CONFIDENT and len(set(cited)) < 2:
+            warn.append(f"{f.name}: graded {g} on a single source; add an independent source or lower the grade")
+        if g == "strong" and known and all(weak(s) for s in known):
+            err.append(f"{f.name}: graded strong but cites only tertiary/C sources")
         claims.append((f.stem, m, cited))
+    nums = sorted(int(c[1:]) for c, _, _ in claims)
+    gaps = sorted(set(range(1, nums[-1] + 1)) - set(nums)) if nums else []
+    if gaps: warn.append("claims: ID gap(s) at " + ", ".join(f"C{n:02d}" for n in gaps) + " (renumber with tools/renumber.py)")
     used = {s for _, _, c in claims for s in c}
     for f in list((d / "dossier").glob("*.md")) + [d / "timeline.md"]:
         if not f.exists(): continue

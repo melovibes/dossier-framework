@@ -9,6 +9,8 @@ locator:                 # chapter, page, section, timestamp
 license: linked-only     # public-domain | cc-by | linked-only
 mirrored:                # path under collections/ if public domain, else blank
 accessed: 
+reliability:             # A major outlet/scholarly/primary record | B reputable but limited or self-reported | C tertiary or fan-maintained
+archived:                # Wayback URL; required for paywalled hosts (tools/add_source.py fills it)
 ---
 
 # {{ID}} — Title
