@@ -59,3 +59,16 @@ def test_timeline_rules(dossier):
     tl.write_text(tl.read_text() + "| 1980 | Earlier | strong | [S01] |\n| someday | ? | probable | [S01] |\n| 2005 | Uncited | probable | |\n")
     out = validate(dossier).stdout
     assert "out of chronological order" in out and "unparseable date 'someday'" in out and "cites no source" in out
+
+def test_contradictions_register(dossier):
+    cx = dossier / "contradictions.md"
+    assert cx.exists()  # scaffolded by new_dossier
+    base = cx.read_text()
+    cx.write_text(base + "| X01 | Year? | 1990 [S01]. 1991 [S02]. | **Resolved:** 1990. | (C01) |\n")
+    r = validate(dossier); assert r.returncode == 0, r.stdout
+    cx.write_text(base + "| X01 | Year? | 1990 [S01]. | maybe | (C09) |\n")
+    r = validate(dossier)
+    for msg in ["fewer than two sources", "must start with **Resolved** or **Open**", "unknown claim C09"]:
+        assert msg in r.stdout, msg
+    cx.write_text(base); add_claim(dossier, "C01", "disputed", "S01, S02")
+    r = validate(dossier); assert "graded disputed but not in contradictions.md" in r.stdout

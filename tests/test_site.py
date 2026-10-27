@@ -7,7 +7,7 @@ def build(d, out):
 
 def test_build_and_links(dossier, tmp_path):
     out = tmp_path / "site" / "test-person"; build(dossier, out)
-    for p in ["index.html", "claims.html", "sources.html", "timeline.html", "01-early-life.html"]:
+    for p in ["index.html", "claims.html", "sources.html", "timeline.html", "contradictions.html", "print.html", "01-early-life.html"]:
         assert (out / p).exists()
     r = run(ROOT / "tools/check_links.py", tmp_path / "site"); assert r.returncode == 0, r.stdout
 
@@ -24,7 +24,7 @@ def server():
     yield f"http://127.0.0.1:{srv.server_port}/norm-macdonald"
     srv.shutdown()
 
-CASES = [("timeline.html", "poker"), ("claims.html", "gambl"), ("sources.html", "variety"), ("11-gambling-and-poker.html", "bravo")]
+CASES = [("timeline.html", "poker"), ("claims.html", "gambl"), ("sources.html", "variety"), ("11-gambling-and-poker.html", "bravo"), ("contradictions.html", "ohlmeyer")]
 
 @pytest.mark.parametrize("page,term", CASES)
 def test_filter_hides_and_restores(server, page, term):

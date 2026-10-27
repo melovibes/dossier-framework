@@ -11,4 +11,4 @@ Generated with dossier-framework. Research cutoff: 2026-10-27.
 | `timeline.md` | Dated events with sources |
 | `bibliography.md` | Generated from sources/ |
 
-Check it: `python tools/validate.py norm-macdonald`
+Check it: `python tools/validate.py dossiers/norm-macdonald --strict (from the framework root)`

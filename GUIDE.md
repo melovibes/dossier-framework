@@ -35,6 +35,10 @@ Read ETHICS.md first. If the subject is a private individual, stop.
 ## Dates
 Timeline rows and claim `date:` fields use one format so they sort and show their precision: `2018-09-11` (day), `2018-09` (month), `2018` (year), `1970s` or `mid-2010s` (decade), `c. 1992` (circa), and `355 BCE`. Join ranges with `–` (`1993–1998`, `1992–93`). validate.py rejects dates it can't parse and warns when timeline rows are out of order.
 
+## Contradictions
+
+When sources disagree on a fact (a date, a place, a cause), add a row to `contradictions.md`: the question, each position with its sources, a resolution starting **Resolved:** or **Open:**, and the affected claims. Don't silently pick one. Every claim graded `disputed` must appear there; the validator enforces this and the site renders it as the Contradictions page.
+
 ## Source reliability
 Every source carries `reliability:`.
 | Grade | Meaning |

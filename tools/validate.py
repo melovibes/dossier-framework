@@ -138,6 +138,35 @@ def main():
         for s in CITE.findall(txt):
             used.add(s)
             if s not in sources: err.append(f"{f.relative_to(d)}: cites unknown source {s}")
+    cx = d / "contradictions.md"
+    cids = {cid for cid, _, _ in claims}
+    listed = set()
+    if cx.exists():
+        seen = []
+        for row in re.findall(r"^\|(.+)\|\s*$", cx.read_text(encoding="utf-8"), re.M):
+            cells = [c.strip() for c in row.split("|")]
+            if cells[0] == "ID" or set(cells[0]) <= set("-: "): continue
+            if len(cells) != 5: err.append(f"contradictions.md: row '{cells[0]}' needs 5 columns"); continue
+            xid, q, pos, res, cl = cells
+            if not re.fullmatch(r"X\d{2,}", xid): err.append(f"contradictions.md: bad id '{xid}' (use X01, X02, ...)")
+            if xid in seen: err.append(f"contradictions.md: duplicate id {xid}")
+            seen.append(xid)
+            cs = set(CITE.findall(pos))
+            if len(cs) < 2: err.append(f"contradictions.md: {xid} positions cite fewer than two sources")
+            for s in cs:
+                used.add(s)
+                if s not in sources: err.append(f"contradictions.md: {xid} cites unknown source {s}")
+            for s in CITE.findall(res):
+                if s not in sources: err.append(f"contradictions.md: {xid} cites unknown source {s}")
+            if not re.match(r"\*\*(Resolved|Open)\b", res): err.append(f"contradictions.md: {xid} resolution must start with **Resolved** or **Open**")
+            refs = re.findall(r"C\d+", cl)
+            if not refs: err.append(f"contradictions.md: {xid} lists no claims")
+            for c in refs:
+                listed.add(c)
+                if c not in cids: err.append(f"contradictions.md: {xid} refers to unknown claim {c}")
+    for cid, m, _ in claims:
+        if m.get("grade") == "disputed" and cid not in listed:
+            warn.append(f"{cid}.md: graded disputed but not in contradictions.md")
     for s in sources:
         if s not in used: warn.append(f"sources/{s}.md: never cited")
     if a.write_summary and (d / "dossier/00-executive-findings.md").exists():

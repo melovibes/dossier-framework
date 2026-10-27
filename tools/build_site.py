@@ -132,10 +132,10 @@ def page(ctx, fname, title, body, kicker=""):
     on = lambda f: ' class=on aria-current="page"' if f == fname else ""
     nav = ['<h4>Dossier</h4>'] + [f'<a href="{f}"{on(f)}>{esc(t)}</a>' for f, t in ctx["nav"]]
     nav += ['<h4>Reference</h4>'] + [f'<a href="{f}"{on(f)}>{t}</a>' for f, t in
-            [("claims.html", f"Claims ({len(ctx['claims'])})"), ("sources.html", f"Sources ({len(ctx['sources'])})"), ("timeline.html", "Timeline"), ("print.html", "Print / PDF")]]
-    order = [f for f, _ in ctx["nav"]] + ["claims.html", "sources.html", "timeline.html"]
+            [("claims.html", f"Claims ({len(ctx['claims'])})"), ("sources.html", f"Sources ({len(ctx['sources'])})"), ("timeline.html", "Timeline"), ("contradictions.html", "Contradictions"), ("print.html", "Print / PDF")]]
+    order = [f for f, _ in ctx["nav"]] + ["claims.html", "sources.html", "timeline.html", "contradictions.html"]
     k = order.index(fname) if fname in order else -1
-    titles = dict(ctx["nav"] + [("claims.html", "Claims"), ("sources.html", "Sources"), ("timeline.html", "Timeline")])
+    titles = dict(ctx["nav"] + [("claims.html", "Claims"), ("sources.html", "Sources"), ("timeline.html", "Timeline"), ("contradictions.html", "Contradictions")])
     prev = f'<a href="{order[k-1]}">← {esc(titles[order[k-1]])}</a>' if k > 0 else "<span></span>"
     nxt = f'<a href="{order[k+1]}">{esc(titles[order[k+1]])} →</a>' if 0 <= k < len(order) - 1 else "<span></span>"
     name = esc(ctx["name"])
@@ -208,10 +208,13 @@ def main():
     (out / "sources.html").write_text(page(ctx, "sources.html", "Sources", "<h1>Sources</h1>" + "".join(scards), "Reference"), encoding="utf-8")
     tl = d / "timeline.md"
     (out / "timeline.html").write_text(page(ctx, "timeline.html", "Timeline", md(tl.read_text(encoding="utf-8"), ctx) if tl.exists() else "<h1>Timeline</h1>", "Reference"), encoding="utf-8")
+    cx = d / "contradictions.md"
+    (out / "contradictions.html").write_text(page(ctx, "contradictions.html", "Contradictions", md(cx.read_text(encoding="utf-8"), ctx) if cx.exists() else "<h1>Contradiction register</h1><p>None logged.</p>", "Reference"), encoding="utf-8")
     # Print / PDF: every chapter, the timeline, claims and sources on one page.
     parts = [f'<section><h1>{esc(cfg["name"])} — evidence dossier</h1><p class="meta">Research cutoff {esc(ctx["cutoff"])}. Use your browser\'s Print → Save as PDF.</p></section>']
     parts += [f"<section>{md(f.read_text(encoding='utf-8'), ctx)}</section>" for f in chapters]
     if tl.exists(): parts.append(f"<section>{md(tl.read_text(encoding='utf-8'), ctx)}</section>")
+    if cx.exists(): parts.append(f"<section>{md(cx.read_text(encoding='utf-8'), ctx)}</section>")
     parts.append("<section><h1>Claims</h1>" + "".join(cards).replace(' id="C', ' data-id="C') + "</section>")
     parts.append("<section><h1>Sources</h1>" + "".join(scards).replace(' id="S', ' data-id="S') + "</section>")
     (out / "print.html").write_text(page(ctx, "print.html", "Print / PDF", '<div class="printpage">' + "".join(parts) + "</div>", "Full dossier"), encoding="utf-8")

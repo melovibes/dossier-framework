@@ -47,7 +47,7 @@ def scaffold(a):
     write(dest / "subject.toml", cfg)
     if checklist.exists():
         write(dest / "checklist.md", checklist.read_text(encoding="utf-8"))
-    for f in ["README.md", "timeline.md", "bibliography.md"]:
+    for f in ["README.md", "timeline.md", "bibliography.md", "contradictions.md"]:
         write(dest / f, fill((TPL / f).read_text(encoding="utf-8"), ctx))
     for f in ["00-executive-findings.md", "00-scope-and-method.md", "99-source-notes.md"]:
         write(dest / "dossier" / f, fill((TPL / "dossier" / f).read_text(encoding="utf-8"), ctx))
