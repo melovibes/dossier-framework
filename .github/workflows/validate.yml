@@ -1,0 +1,29 @@
+name: validate
+on: [push, pull_request]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Noreply emails only
+        run: |
+          if git log --format='%ae%n%ce' | grep -vE '@users\.noreply\.github\.com$|^noreply@github\.com$' | grep .; then
+            echo "Non-noreply email in history"; exit 1; fi
+      - name: Validate dossiers (strict)
+        run: |
+          shopt -s nullglob
+          for d in dossiers/*/; do python tools/validate.py "$d" --strict; done
+      - name: site/ is fresh
+        run: |
+          python tools/build_site.py --all
+          if [ -n "$(git status --porcelain -- site)" ]; then git status --short -- site; echo "site/ is stale: run tools/build_site.py --all and commit"; exit 1; fi
+      - name: Internal links
+        run: python tools/check_links.py site
+      - name: Tests (incl. headless filter)
+        run: |
+          pip install -r requirements-dev.txt
+          python -m playwright install --with-deps chromium
+          python -m pytest -q
