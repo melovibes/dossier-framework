@@ -19,8 +19,8 @@ jobs:
           for d in dossiers/*/; do python tools/validate.py "$d" --strict; done
       - name: site/ is fresh
         run: |
-          for d in dossiers/*/; do python tools/build_site.py "$d"; done
-          git diff --stat --exit-code -- site || { echo "site/ is stale: run tools/build_site.py and commit"; exit 1; }
+          python tools/build_site.py --all
+          if [ -n "$(git status --porcelain -- site)" ]; then git status --short -- site; echo "site/ is stale: run tools/build_site.py --all and commit"; exit 1; fi
       - name: Internal links
         run: python tools/check_links.py site
       - name: Tests (incl. headless filter)

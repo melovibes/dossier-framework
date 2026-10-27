@@ -1,0 +1,35 @@
+# Build the reading sites in Actions and deploy to GitHub Pages.
+# To switch over: copy to .github/workflows/pages.yml (needs a token with the `workflow` scope),
+# set Settings → Pages → Source to "GitHub Actions", then site/ can be dropped from git
+# (remove the "site/ is fresh" step from validate.yml and add site/ to .gitignore).
+# URLs stay the same: the artifact keeps the landing page at / and the sites under /site/<slug>/.
+name: pages
+on:
+  push: {branches: [main]}
+  workflow_dispatch:
+permissions: {contents: read, pages: write, id-token: write}
+concurrency: {group: pages, cancel-in-progress: true}
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: Validate (strict)
+        run: for d in dossiers/*/; do python tools/validate.py "$d" --strict; done
+      - name: Build
+        run: |
+          mkdir -p _pages && cp index.html .nojekyll _pages/
+          python tools/build_site.py --all --out _pages/site --base-url "https://melovibes.github.io/dossier-framework/site"
+          python tools/check_links.py _pages/site
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with: {path: _pages}
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: {name: github-pages, url: "${{ steps.deployment.outputs.page_url }}"}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
