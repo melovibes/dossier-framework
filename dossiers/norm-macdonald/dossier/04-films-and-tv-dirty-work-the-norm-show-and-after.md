@@ -1,0 +1,3 @@
+# 04 — Films and TV: Dirty Work, The Norm Show and after
+
+His first film lead came in Dirty Work (1998). He co-wrote it with Frank Sebastiano and Fred Wolf, and Bob Saget directed. Variety called it "sporadically hilarious" and uneven [S12] (C10). He then co-created and starred in The Norm Show on ABC (1999–2001), playing a former NHL player sentenced to community service as a social worker [S01] [S03] (C11). Later credits include A Minute with Stan Hooper (2003), Sports Show with Norm Macdonald (2011), Norm Macdonald Has a Show on Netflix (2018), and a recurring role on The Middle [S06]. The pattern is short runs, which the A.V. Club tied partly to his refusal to play the industry game [S16].
