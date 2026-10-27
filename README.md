@@ -19,6 +19,8 @@ Then follow **[GUIDE.md](GUIDE.md)** (includes an agent prompt). Read **[ETHICS.
 | `templates/` | subject.toml, source, claim, timeline, bibliography, chapter and summary templates |
 | `tools/new_dossier.py` | Scaffold a dossier; add numbered sources/claims |
 | `tools/validate.py` | Every claim graded and cited; every `[Sxx]` resolves; mirrors are licensed; regenerates summary table and bibliography |
+| `tools/build_site.py` | Render a dossier into a static reading site in `site/<slug>/` (stdlib only) |
+| `site/` | Built reading sites |
 | `dossiers/` | Generated dossiers |
 | `ci/validate.yml` | GitHub Actions workflow; move to `.github/workflows/` to enable CI |
 
