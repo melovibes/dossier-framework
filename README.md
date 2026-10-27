@@ -24,3 +24,9 @@ Then follow **[GUIDE.md](GUIDE.md)** (includes an agent prompt). Read **[ETHICS.
 
 ## Grades
 strong · widely-accepted · probable · disputed · unproved · unsupported · false · unassessed (see GUIDE.md).
+
+## Credits
+The structure and method of this framework (numbered sources, chaptered dossier, graded "establishes / does not establish" findings, mirrored public-domain collections with metadata sidecars, and "link, never copy" for copyrighted scholarship) are adapted from **[Historical Evidence for John the Baptist](https://github.com/sybil-solutions/historical-evidence-for-john-the-baptist)** by **[Sybil Solutions](https://github.com/sybil-solutions)**. No text or code was copied from that project.
+
+## License
+No license has been chosen yet. The project that inspired it doesn't publish one either.
