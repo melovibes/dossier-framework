@@ -9,18 +9,25 @@ Each dossier has: a subject config, numbered sources (S01…), graded claims (C0
 python tools/new_dossier.py --subject "Hypatia of Alexandria" --period "c. 355-415 CE" --alias "Hypatia"
 python tools/new_dossier.py add-source dossiers/hypatia-of-alexandria --title "Socrates Scholasticus, Ecclesiastical History 7.15"
 python tools/new_dossier.py add-claim  dossiers/hypatia-of-alexandria --claim "Hypatia was killed by a Christian mob in 415"
-python tools/validate.py dossiers/hypatia-of-alexandria --write-summary --write-bibliography
+python tools/add_source.py dossiers/hypatia-of-alexandria https://example.org/article --reliability B   # metadata + Wayback copy
+python tools/validate.py dossiers/hypatia-of-alexandria --strict --write-summary --write-bibliography --report
+python tools/build_site.py --all && python tools/check_links.py
 ```
+New subjects: `python tools/new_dossier.py --subject "..." --kind person|event|place|object|movement|topic` copies a coverage checklist.
+Contributing (identity, hooks, merging locally): **[CONTRIBUTING.md](CONTRIBUTING.md)**.
 Then follow **[GUIDE.md](GUIDE.md)** (includes an agent prompt). Read **[ETHICS.md](ETHICS.md)**: not for private individuals.
 
 ## Layout
 | Path | Purpose |
 |---|---|
-| `templates/` | subject.toml, source, claim, timeline, bibliography, chapter and summary templates |
+| `templates/` | subject.toml, source, claim, timeline, contradictions, bibliography, chapter and summary templates; `checklists/<kind>.md` |
 | `tools/new_dossier.py` | Scaffold a dossier; add numbered sources/claims |
-| `tools/validate.py` | Every claim graded and cited; every `[Sxx]` resolves; mirrors are licensed; regenerates summary table and bibliography |
+| `tools/validate.py` | Every claim graded and cited; every `[Sxx]` resolves; reliability A/B/C and type set; paywalled sources archived; confident grades need 2+ sources; no claim-ID gaps; timeline dates parse and run in order; contradiction register and checklist resolve. `--report` writes coverage.md |
+| `tools/renumber.py` | Close C/S ID gaps and rewrite every reference |
+| `tools/check_links.py` | Internal links/anchors in `site/`; `--external` checks every source url and suggests Wayback copies |
 | `tools/add_source.py` | Capture a URL as the next S-number: metadata from the page, reliability, Wayback `archived:` copy |
-| `tools/build_site.py` | Render a dossier into a static reading site in `site/<slug>/` (stdlib only) |
+| `tools/build_site.py` | Render a dossier into `site/<slug>/` (stdlib only): chapters, claims, sources, timeline, contradictions, full-text search, print/PDF page, sitemap and Open Graph tags. `--all` builds every dossier plus `site/index.html` |
+| `tests/` | pytest suite incl. headless-browser filter and search tests (`pip install -r requirements-dev.txt`) |
 | `site/` | Built reading sites |
 | `dossiers/` | Generated dossiers |
 | `ci/*.yml` | GitHub Actions workflows (validate, Pages, link rot); copy to `.github/workflows/` once the token has the `workflow` scope |
