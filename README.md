@@ -22,7 +22,8 @@ Then follow **[GUIDE.md](GUIDE.md)** (includes an agent prompt). Read **[ETHICS.
 | `tools/build_site.py` | Render a dossier into a static reading site in `site/<slug>/` (stdlib only) |
 | `site/` | Built reading sites |
 | `dossiers/` | Generated dossiers |
-| `ci/validate.yml` | GitHub Actions workflow; move to `.github/workflows/` to enable CI |
+| `ci/*.yml` | GitHub Actions workflows (validate, Pages, link rot); copy to `.github/workflows/` once the token has the `workflow` scope |
+| `.githooks/` | pre-commit/pre-push guards (noreply identity, strict validation, fresh site, links); see CONTRIBUTING.md |
 
 ## Grades
 strong · widely-accepted · probable · disputed · unproved · unsupported · false · unassessed (see GUIDE.md).
