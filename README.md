@@ -1,0 +1,26 @@
+# dossier-framework
+
+A reusable framework for building a sourced, graded **historical evidence dossier** on any historical or public subject — modelled on the structure of [historical-evidence-for-john-the-baptist](https://github.com/sybil-solutions/historical-evidence-for-john-the-baptist) (structure only; none of its content is copied).
+
+Each dossier has: a subject config, numbered sources (S01…), graded claims (C01…) that must cite sources, a timeline, a generated bibliography, a chaptered report with an "establishes / does not establish" table, and `collections/` for mirrored public-domain texts. Copyrighted work is linked, never copied.
+
+## Quick start (Python 3.11+, no dependencies; Windows/macOS/Linux)
+```sh
+python tools/new_dossier.py --subject "Hypatia of Alexandria" --period "c. 355-415 CE" --alias "Hypatia"
+python tools/new_dossier.py add-source dossiers/hypatia-of-alexandria --title "Socrates Scholasticus, Ecclesiastical History 7.15"
+python tools/new_dossier.py add-claim  dossiers/hypatia-of-alexandria --claim "Hypatia was killed by a Christian mob in 415"
+python tools/validate.py dossiers/hypatia-of-alexandria --write-summary --write-bibliography
+```
+Then follow **[GUIDE.md](GUIDE.md)** (includes an agent prompt). Read **[ETHICS.md](ETHICS.md)**: not for private individuals.
+
+## Layout
+| Path | Purpose |
+|---|---|
+| `templates/` | subject.toml, source, claim, timeline, bibliography, chapter and summary templates |
+| `tools/new_dossier.py` | Scaffold a dossier; add numbered sources/claims |
+| `tools/validate.py` | Every claim graded and cited; every `[Sxx]` resolves; mirrors are licensed; regenerates summary table and bibliography |
+| `dossiers/` | Generated dossiers |
+| `.github/workflows/validate.yml` | Runs validation on every dossier in CI |
+
+## Grades
+strong · widely-accepted · probable · disputed · unproved · unsupported · false · unassessed (see GUIDE.md).

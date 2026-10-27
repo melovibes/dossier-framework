@@ -1,0 +1,29 @@
+# Subject config. Edit this first; everything else is generated from it.
+[subject]
+name = "Hypatia of Alexandria"
+slug = "hypatia-of-alexandria"
+aliases = ["Hypatia"]                 # other names, spellings, titles
+kind = "person"              # person | event | place | object | movement | topic
+period = "c. 355-415 CE"                  # e.g. "c. 30 BCE - 36 CE" or "1840-1865"
+region = ""
+research_cutoff = "2026-10-27"
+
+[scope]
+in_scope = []                # what the dossier covers
+out_of_scope = []            # what it deliberately does not
+# Confirm before starting: the subject is historical or a public figure/topic,
+# and research uses published sources only (see ETHICS.md).
+public_subject_confirmed = true
+
+[questions]
+# Research questions; each becomes a chapter seed in dossier/.
+list = [
+  "What evidence survives, and how close is it to the subject?",
+  "What can be reconstructed with confidence, and where are the gaps?",
+  "What is disputed, and why?",
+  "How was the subject remembered and reinterpreted later?",
+]
+
+[collections]
+# Folders under collections/ for mirrored public-domain sources.
+list = ["primary", "secondary", "archaeology", "afterlives"]
