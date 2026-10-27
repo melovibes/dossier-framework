@@ -30,4 +30,13 @@ The weak points are mostly ones he made himself. He spent years giving a false b
 | Nothing Special was filmed at home, in one take, before a 2020 medical procedure, and released on Netflix after his death. (C19) | Widely accepted | [S19] [S18] [S21] [S22] |
 | Nothing Special received three posthumous Emmy nominations in 2022. (C20) | Strong historical conclusion | [S20] [S21] |
 | Peers widely rated him among the most original comics of his generation. (C21) | Widely accepted | [S01] [S02] |
+| He married Connie Vaillancourt in 1988; they had one son and divorced about eleven years later, in 1999. (C22) | Strong historical conclusion | [S04] [S25] [S26] |
+| He was married only once, and he did not discuss his ex-wife publicly beyond saying she was 'great' and a 'fine person'. (C23) | Widely accepted | [S25] [S04] |
+| He had one child, a son named Dylan, born in the early 1990s, who survived him. (C24) | Strong historical conclusion | [S04] [S02] [S25] [S26] |
+| His parents were Percy Lloyd Macdonald and Ferne (née Mains) Macdonald, both teachers; his father died of heart disease in 1990; he had an older brother, Neil, and a younger brother, Leslie. (C25) | Strong historical conclusion | [S02] [S25] [S28] [S01] |
+| He lived in Los Angeles from the late 1990s until his death, first in West Hollywood and later in a planned community on the city's Westside near LAX. (C26) | Widely accepted | [S26] [S27] [S25] |
+| He first moved to Los Angeles around 1992, before joining SNL. (C27) | Probable | [S27] |
+| He lived in the New York area while on SNL (1993–1998). (C28) | Probable | [S03] [S26] |
+| He died in the Los Angeles area; reports differ on the exact city. (C29) | Disputed | [S01] [S29] |
+| He had a publicly documented romantic relationship after his divorce. (C30) | Unproved hypothesis | [S25] [S27] |
 <!-- claims:end -->
