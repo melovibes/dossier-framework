@@ -7,3 +7,4 @@ return c.length?[...c]:[...m.querySelectorAll('tbody tr, li, p, blockquote, pre,
 q&&q.addEventListener('input',()=>{const v=q.value.toLowerCase().trim();
 items().forEach(e=>e.classList.toggle('hide',!!v&&!e.textContent.toLowerCase().includes(v)));});
 document.addEventListener('keydown',e=>{if(e.key==='/'&&document.activeElement!==q){e.preventDefault();q.focus();}});
+q&&!document.getElementById('sq')&&q.addEventListener('keydown',e=>{if(e.key==='Enter'&&q.value.trim())location.href='search.html?q='+encodeURIComponent(q.value.trim());});

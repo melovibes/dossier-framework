@@ -118,7 +118,38 @@ return c.length?[...c]:[...m.querySelectorAll('tbody tr, li, p, blockquote, pre,
 q&&q.addEventListener('input',()=>{const v=q.value.toLowerCase().trim();
 items().forEach(e=>e.classList.toggle('hide',!!v&&!e.textContent.toLowerCase().includes(v)));});
 document.addEventListener('keydown',e=>{if(e.key==='/'&&document.activeElement!==q){e.preventDefault();q.focus();}});
+q&&!document.getElementById('sq')&&q.addEventListener('keydown',e=>{if(e.key==='Enter'&&q.value.trim())location.href='search.html?q='+encodeURIComponent(q.value.trim());});
 """
+
+SEARCH_JS = """
+const sq=document.getElementById('sq'),out=document.getElementById('results'),D=window.SEARCH_INDEX||[];
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function run(){const v=sq.value.toLowerCase().trim(),terms=v.split(/\\s+/).filter(Boolean);
+ history.replaceState(null,'',v?'?q='+encodeURIComponent(sq.value.trim()):location.pathname);
+ if(!terms.length){out.innerHTML='';return;}
+ const hits=D.map(d=>{const h=(d.t+' '+d.x).toLowerCase();if(!terms.every(w=>h.includes(w)))return null;
+   const score=terms.reduce((s,w)=>s+(d.t.toLowerCase().includes(w)?5:0)+h.split(w).length-1,0);return [score,d];}).filter(Boolean).sort((a,b)=>b[0]-a[0]);
+ out.innerHTML='<p class=meta>'+hits.length+' result'+(hits.length==1?'':'s')+'</p>'+hits.slice(0,100).map(([s,d])=>{
+   const i=Math.max(0,d.x.toLowerCase().indexOf(terms[0])-80);let snip=esc((i?'…':'')+d.x.slice(i,i+240)+'…');
+   terms.forEach(w=>{snip=snip.replace(new RegExp('('+w.replace(/[.*+?^${}()|[\\]\\\\]/g,'\\\\$&')+')','ig'),'<mark>$1</mark>');});
+   return '<div class="card result" data-s><h3><a href="'+d.u+'">'+esc(d.t)+'</a></h3><div class=meta>'+esc(d.p)+'</div><p>'+snip+'</p></div>';}).join('');}
+sq.addEventListener('input',run);sq.value=new URLSearchParams(location.search).get('q')||'';run();
+"""
+
+def search_index(bodies):
+    """Split every rendered page at headings and cards into searchable sections."""
+    import json
+    docs = []
+    for fname, ptitle, body in bodies:
+        parts = re.split(r'(?=<h[1-3] id="[^"]+"|<div class="card" id="[^"]+")', body)
+        for part in parts:
+            m = re.match(r'<(?:h[1-3]|div class="card") id="([^"]+)"', part)
+            text = html.unescape(re.sub(r"<[^>]+>", " ", part)); text = re.sub(r"\s+", " ", text).strip()
+            if len(text) < 3: continue
+            h = re.search(r"<h[1-3][^>]*>(.*?)</h[1-3]>", part, re.S)
+            title = html.unescape(re.sub(r"<[^>]+>", "", h.group(1))).strip() if h else ptitle
+            docs.append({"u": fname + (f"#{m.group(1)}" if m and not part.startswith("<h1") else ""), "t": title, "p": ptitle, "x": text})
+    return "window.SEARCH_INDEX=" + json.dumps(docs, ensure_ascii=False, separators=(",", ":")) + ";\n"
 
 def describe(body, fallback):
     """First real paragraph as plain text, for <meta name=description> and Open Graph."""
@@ -132,7 +163,7 @@ def page(ctx, fname, title, body, kicker=""):
     on = lambda f: ' class=on aria-current="page"' if f == fname else ""
     nav = ['<h4>Dossier</h4>'] + [f'<a href="{f}"{on(f)}>{esc(t)}</a>' for f, t in ctx["nav"]]
     nav += ['<h4>Reference</h4>'] + [f'<a href="{f}"{on(f)}>{t}</a>' for f, t in
-            [("claims.html", f"Claims ({len(ctx['claims'])})"), ("sources.html", f"Sources ({len(ctx['sources'])})"), ("timeline.html", "Timeline"), ("contradictions.html", "Contradictions"), ("print.html", "Print / PDF")]]
+            [("claims.html", f"Claims ({len(ctx['claims'])})"), ("sources.html", f"Sources ({len(ctx['sources'])})"), ("timeline.html", "Timeline"), ("contradictions.html", "Contradictions"), ("search.html", "Search"), ("print.html", "Print / PDF")]]
     order = [f for f, _ in ctx["nav"]] + ["claims.html", "sources.html", "timeline.html", "contradictions.html"]
     k = order.index(fname) if fname in order else -1
     titles = dict(ctx["nav"] + [("claims.html", "Claims"), ("sources.html", "Sources"), ("timeline.html", "Timeline"), ("contradictions.html", "Contradictions")])
@@ -144,6 +175,7 @@ def page(ctx, fname, title, body, kicker=""):
     base = ctx.get("base_url", "")
     url = base + ("" if fname == "index.html" else fname) if base else ""
     ctx.setdefault("pages", []).append(fname)
+    if fname not in ("print.html", "search.html"): ctx.setdefault("bodies", []).append((fname, title, body))
     head = (f'<meta name="description" content="{desc}"><meta property="og:type" content="article">'
             f'<meta property="og:title" content="{full}"><meta property="og:description" content="{desc}">'
             f'<meta property="og:site_name" content="{name} — evidence dossier"><meta name="twitter:card" content="summary">'
@@ -152,7 +184,7 @@ def page(ctx, fname, title, body, kicker=""):
 <title>{full}</title>{head}<link rel="stylesheet" href="assets/site.css"></head><body>
 <a class="skip" href="#main">Skip to content</a>
 <header class="top"><button id="navbtn" aria-label="Contents">☰</button><a class="brand" href="index.html"><b>✦</b> {name} <span>— evidence dossier</span></a>
-<label class="vh" for="q">Filter this page</label><input id="q" type="search" placeholder="Filter this page   /"></header>
+<label class="vh" for="q">Filter this page (Enter searches the whole dossier)</label><input id="q" type="search" placeholder="Filter page · Enter = search all   /"></header>
 <div class="wrap"><nav class="side" aria-label="Contents">{''.join(nav)}</nav>
 <main id="main" tabindex="-1">{f'<div class="kicker">{esc(kicker)}</div>' if kicker else ''}{body}
 <div class="pager">{prev}{nxt}</div>
@@ -208,6 +240,11 @@ def build_one(d, out_arg=None, base_arg=None):
     (out / "timeline.html").write_text(page(ctx, "timeline.html", "Timeline", md(tl.read_text(encoding="utf-8"), ctx) if tl.exists() else "<h1>Timeline</h1>", "Reference"), encoding="utf-8")
     cx = d / "contradictions.md"
     (out / "contradictions.html").write_text(page(ctx, "contradictions.html", "Contradictions", md(cx.read_text(encoding="utf-8"), ctx) if cx.exists() else "<h1>Contradiction register</h1><p>None logged.</p>", "Reference"), encoding="utf-8")
+    (out / "assets" / "search-index.js").write_text(search_index(ctx["bodies"]), encoding="utf-8")
+    (out / "assets" / "search.js").write_text(SEARCH_JS, encoding="utf-8")
+    (out / "search.html").write_text(page(ctx, "search.html", "Search", '<h1>Search</h1><label class="vh" for="sq">Search the whole dossier</label>'
+        '<input id="sq" type="search" placeholder="Search chapters, claims, sources, timeline…" autofocus style="width:100%;font-size:1.1rem;padding:.5rem">'
+        '<div id="results" aria-live="polite"></div><script src="assets/search-index.js"></script><script src="assets/search.js"></script>', "Reference"), encoding="utf-8")
     # Print / PDF: every chapter, the timeline, claims and sources on one page.
     parts = [f'<section><h1>{esc(cfg["name"])} — evidence dossier</h1><p class="meta">Research cutoff {esc(ctx["cutoff"])}. Use your browser\'s Print → Save as PDF.</p></section>']
     parts += [f"<section>{md(f.read_text(encoding='utf-8'), ctx)}</section>" for f in chapters]
